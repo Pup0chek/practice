@@ -1,9 +1,11 @@
 from functools import wraps
 
-from fastapi import FastAPI, Header, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException
 from pydantic import validator
 
-from redis_module import Redis
+from create import create_task
+from connect import Session
+from models import Tasks
 from pydantic import BaseModel
 import redis
 
@@ -57,7 +59,12 @@ def get_record(key:str, client = Depends(redis_client)):
 @app.post("/create_record")
 #@valid_token
 def post_record(params: Params, client = Depends(redis_client)):
-    client.set(params.key, params.value)
-    return {"message": f"{client.get(params.key).decode('utf-8')}"}
+    #client.set(params.key,params.value, ex=3600)
+    #return params
+    task = Tasks(name=params.key, value=params.value)
+    with Session() as session:
+        message = create_task(task, session)
+        return message
+    # return {"message": f"{client.get(params.key).decode('utf-8')}"}
 
 
