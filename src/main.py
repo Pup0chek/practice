@@ -2,7 +2,7 @@ from functools import wraps
 
 from fastapi import FastAPI, Depends, HTTPException
 from pydantic import validator
-
+from starlette.middleware.base import BaseHTTPMiddleware
 from create import create_task
 from connect import Session
 from models import Tasks
@@ -43,22 +43,44 @@ def cached(func):
     @wraps(func)
     def wrapper(key, client, *args, **kwargs):
         if not client.exists(key):
-            raise HTTPException(status_code=404, detail="Record with this name doesn't found")
+            raise HTTPException(status_code=404, detail="Record with this name doesn't found in cache")
         #return func(key, *args, **kwargs)
         return {f"{key}": f"{client.get(f'{key}').decode('utf-8')}"}
     return wrapper
 
 
+# @app.middleware("http")
+# def middleware_func(request: Request, call_next):
+#     print("middleware working")
+#     response = call_next(request)
+#     return response
+
+
+
+class CustomMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        print(f"Request received: {request.url}")
+        response = await call_next(request)
+
+        # Модификация ответа, если нужно
+        response.headers['X-Custom-Header'] = 'Value'
+
+        return response
+
+    # Добавление middleware в приложение
+app.add_middleware(CustomMiddleware)
+
+
 
 @app.get("/get_record")
 @cached
-def get_record(key:str, client = Depends(redis_client)):
+async def get_record(key:str, client = Depends(redis_client)):
     pass
 
 
 @app.post("/create_record")
 #@valid_token
-def post_record(params: Params, client = Depends(redis_client)):
+async def post_record(params: Params, client = Depends(redis_client)):
     #client.set(params.key,params.value, ex=3600)
     #return params
     task = Tasks(name=params.key, value=params.value)
