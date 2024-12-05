@@ -31,6 +31,6 @@ def child(name, n, meshok):
 meshok = meshok(12)
 ivan = child('ivan', 3, meshok)
 nick = child('nick', 4, meshok)
-liya = child('liya', 2, meshok)
+liya = child('nya', 2, meshok)
 print(next(meshok))
 
