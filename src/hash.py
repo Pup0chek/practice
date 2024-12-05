@@ -28,3 +28,12 @@ print(f"Password is valid: {is_valid}")
 
 is_valid_wrong = verify_password(hashed_password, salt, 'wrong_password')
 print(f"Password is valid: {is_valid_wrong}")
+
+
+#-----------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+

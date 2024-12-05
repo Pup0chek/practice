@@ -2,9 +2,9 @@ from functools import wraps
 from fastapi import FastAPI, Depends, HTTPException
 from pydantic import validator
 from starlette.middleware.base import BaseHTTPMiddleware
-from create import create_task
+from create import create_task, create_user
 from connect import Session
-from models import Tasks
+from models import Tasks, Users
 from pydantic import BaseModel
 from create import get_task
 import redis
@@ -29,6 +29,30 @@ products = {'0': 100, '1': 200}
 class Value(BaseModel):
     id: str
     qty: int
+
+class User(BaseModel):
+    name:str
+    password:str
+
+class Userr(BaseModel):
+    name: str
+    role: str
+    send_limit: int
+
+
+class Resource(BaseModel):
+    id: int
+    role_require: str
+
+user = {'Kate': {'role': 'admin', 'send_limit': 5}, 'Alice': {'role': 'user', 'send_limit': 3}}
+
+
+def check_permission(user: Userr, resource: Resource):
+    if user.role == resource.role_require:
+        return True
+    return False
+
+
 
 
 def redis_client():
@@ -105,3 +129,18 @@ async def params(value: Value):
     total = 0
     total += products[value.id]*value.qty
     return total
+
+
+@app.post("/reg")
+async def reg(user:User):
+    with Session() as session:
+        o = Users(user.name, user.password)
+        return create_user(o, session)
+
+
+@app.post('/{resource_id}')
+async def resource(id:int, user: Userr):
+    resources = Resource(id=id, role_require='admin')
+    if check_permission(user, resources):
+        return {"message": "success"}
+    return {"message": "forbidden"}
