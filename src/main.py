@@ -1,5 +1,4 @@
 from functools import wraps
-
 from fastapi import FastAPI, Depends, HTTPException
 from pydantic import validator
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -7,6 +6,7 @@ from create import create_task
 from connect import Session
 from models import Tasks
 from pydantic import BaseModel
+from create import get_task
 import redis
 
 app = FastAPI()
@@ -23,6 +23,12 @@ class Params(BaseModel):
             raise ValueError("Len of token must be greater than 5")
         return token
 
+
+products = {'0': 100, '1': 200}
+
+class Value(BaseModel):
+    id: str
+    qty: int
 
 
 def redis_client():
@@ -42,19 +48,23 @@ def valid_token(func):
 def cached(func):
     @wraps(func)
     def wrapper(key, client, *args, **kwargs):
+        flag = True
         if not client.exists(key):
-            raise HTTPException(status_code=404, detail="Record with this name doesn't found in cache")
+            flag = False
+            with Session() as session:
+                client.set(key, get_task(key, session))
+            #raise HTTPException(status_code=404, detail="Record with this name doesn't found in cache, now it's cached")
+            return {f"{key}": f"{client.get(f'{key}').decode('utf-8')}", "cached": f"{flag}"}
         #return func(key, *args, **kwargs)
-        return {f"{key}": f"{client.get(f'{key}').decode('utf-8')}"}
+        return {f"{key}": f"{client.get(f'{key}').decode('utf-8')}", "cached": f"{flag}"}
     return wrapper
 
-
+#Пример мидлвары из доки
 # @app.middleware("http")
 # def middleware_func(request: Request, call_next):
 #     print("middleware working")
 #     response = call_next(request)
 #     return response
-
 
 
 class CustomMiddleware(BaseHTTPMiddleware):
@@ -90,3 +100,8 @@ async def post_record(params: Params, client = Depends(redis_client)):
     # return {"message": f"{client.get(params.key).decode('utf-8')}"}
 
 
+@app.post("/params")
+async def params(value: Value):
+    total = 0
+    total += products[value.id]*value.qty
+    return total

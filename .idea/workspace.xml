@@ -5,6 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="98364b91-cf6e-48b1-8313-a7789b7d1847" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/practice" beforeDir="false" afterPath="$PROJECT_DIR$/practice" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/practice/database/CRUD/__init__.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/practice/database/__init__.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/practice/src/__init__.py" beforeDir="false" />
@@ -16,6 +18,7 @@
       <change beforePath="$PROJECT_DIR$/practice/src/models.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/practice/src/redis_module.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/practice/test_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/practice/test_api.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/create.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/create.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/database.db" beforeDir="false" afterPath="$PROJECT_DIR$/src/database.db" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.py" afterDir="false" />
     </list>
