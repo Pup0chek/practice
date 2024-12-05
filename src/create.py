@@ -15,4 +15,7 @@ def create_task(task: Tasks, session: Session):
     return {"message": "Task with tha same name already exists"}
 
 
-
+def get_task(name:str, session):
+    statement = select(Tasks).where(Tasks.name == name)
+    result = session.scalar(statement)
+    return result.value
