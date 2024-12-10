@@ -1,4 +1,6 @@
 from functools import wraps
+
+import uvicorn
 from fastapi import FastAPI, Depends, HTTPException
 from pydantic import validator
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -8,6 +10,7 @@ from models import Tasks, Users
 from pydantic import BaseModel
 from create import get_task
 import redis
+from fastapi.openapi.utils import get_openapi
 
 app = FastAPI()
 
@@ -75,10 +78,13 @@ def cached(func):
         flag = True
         if not client.exists(key):
             flag = False
-            with Session() as session:
-                client.set(key, get_task(key, session))
-            #raise HTTPException(status_code=404, detail="Record with this name doesn't found in cache, now it's cached")
-            return {f"{key}": f"{client.get(f'{key}').decode('utf-8')}", "cached": f"{flag}"}
+            try:
+                with Session() as session:
+                    client.set(key, get_task(key, session))
+                #raise HTTPException(status_code=404, detail="Record with this name doesn't found in cache, now it's cached")
+                return {f"{key}": f"{client.get(f'{key}').decode('utf-8')}", "cached": f"{flag}"}
+            except:
+                return {f"No record with this key"}
         #return func(key, *args, **kwargs)
         return {f"{key}": f"{client.get(f'{key}').decode('utf-8')}", "cached": f"{flag}"}
     return wrapper
@@ -144,3 +150,6 @@ async def resource(id:int, user: Userr):
     if check_permission(user, resources):
         return {"message": "success"}
     return {"message": "forbidden"}
+
+if __name__ == "__main__":
+    uvicorn.run('main:app', reload=True)
