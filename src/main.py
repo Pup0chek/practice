@@ -84,6 +84,7 @@ def cached(func):
             try:
                 with Session() as session:
                     client.set(key, get_task(key, session))
+                    data = get_task(key, session)
                 #raise HTTPException(status_code=404, detail="Record with this name doesn't found in cache, now it's cached")
                 return {f"{key}": f"{client.get(f'{key}').decode('utf-8')}", "cached": f"{flag}"}
             except:
@@ -117,8 +118,20 @@ app.add_middleware(CustomMiddleware)
 
 @app.get("/get_record")
 @cached
-async def get_record(key:str, client = Depends(redis_client)):
-    pass
+async def get_record(request:Request, key:str, client = Depends(redis_client)):
+    cached_data = client.get(key)
+    if cached_data:
+        data = cached_data.decode('utf-8')
+        templates = Jinja2Templates(directory='C:\\Users\\AdminIS\\micreservice\\templates')
+        return templates.TemplateResponse("index.html", {"request": request, "id": id, "name": data['name'], "value": data['value']})
+        #return {"lol": data}
+        # with Session() as session:
+        #     response = get_task(id, session)
+        #     templates = Jinja2Templates(directory='C:\\Users\\AdminIS\\micreservice\\templates')
+        #     return templates.TemplateResponse("index.html", {"request": request, "id": id, "name": response['name'], "value": response['value']})
+
+    else:
+        raise HTTPException(status_code=404, detail="Data not found")
 
 
 @app.post("/create_record")
