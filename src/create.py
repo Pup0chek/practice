@@ -21,6 +21,11 @@ def get_task(name:str, session):
     result = session.scalar(statement)
     return result.value
 
+def get_task_id(id:int, session):
+    statement = select(Tasks).where(Tasks.id == id)
+    result = session.scalar(statement)
+    return {"name": result.name, "value": result.value}
+
 def create_user(user: Users, session):
     statement = select(Users).where(Users.login == user.login)
     result = session.scalar(statement)

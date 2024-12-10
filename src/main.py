@@ -7,7 +7,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import HTMLResponse
 from starlette.templating import Jinja2Templates
 
-from create import create_task, create_user
+from create import create_task, create_user, get_task_id
 from connect import Session
 from models import Tasks, Users
 from pydantic import BaseModel
@@ -155,13 +155,16 @@ async def resource(id:int, user: Userr):
     return {"message": "forbidden"}
 
 
+#@cached
 @app.get('/{id}',  response_class=HTMLResponse)
 async def render(request: Request, id: int):
     # dict = {"id": id}
     # enviroment = Environment(loader=FileSystemLoader("C:\\Users\\AdminIS\\micreservice\\templates"))
     # template = enviroment.get_template("index.html")
-    templates = Jinja2Templates(directory='C:\\Users\\AdminIS\\micreservice\\templates')
-    return templates.TemplateResponse("index.html", {"request": request, "id": id})
+    with Session() as session:
+        response = get_task_id(id, session)
+        templates = Jinja2Templates(directory='C:\\Users\\AdminIS\\micreservice\\templates')
+        return templates.TemplateResponse("index.html", {"request": request, "id": id, "name": response['name'], "value":response['value']})
 
 
 if __name__ == "__main__":
