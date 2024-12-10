@@ -1,9 +1,12 @@
 from functools import wraps
-
+from jinja2 import Environment, FileSystemLoader
 import uvicorn
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Request
 from pydantic import validator
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import HTMLResponse
+from starlette.templating import Jinja2Templates
+
 from create import create_task, create_user
 from connect import Session
 from models import Tasks, Users
@@ -151,6 +154,14 @@ async def resource(id:int, user: Userr):
         return {"message": "success"}
     return {"message": "forbidden"}
 
+
+@app.get('/{id}',  response_class=HTMLResponse)
+async def render(request: Request, id: int):
+    # dict = {"id": id}
+    # enviroment = Environment(loader=FileSystemLoader("C:\\Users\\AdminIS\\micreservice\\templates"))
+    # template = enviroment.get_template("index.html")
+    templates = Jinja2Templates(directory='C:\\Users\\AdminIS\\micreservice\\templates')
+    return templates.TemplateResponse("index.html", {"request": request, "id": id})
 
 
 if __name__ == "__main__":
