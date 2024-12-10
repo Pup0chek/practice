@@ -26,5 +26,6 @@ def create_user(user: Users, session):
     result = session.scalar(statement)
     if not result:
         session.add(user)
+        session.commit()
         return {"success"}
     return {"users with the same name already exist"}

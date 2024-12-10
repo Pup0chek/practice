@@ -34,8 +34,8 @@ class Value(BaseModel):
     qty: int
 
 class User(BaseModel):
-    name:str
-    password:str
+    login:str
+    token:str
 
 class Userr(BaseModel):
     name: str
@@ -140,7 +140,7 @@ async def params(value: Value):
 @app.post("/reg")
 async def reg(user:User):
     with Session() as session:
-        o = Users(user.name, user.password)
+        o = Users(login=user.login, token=user.token)
         return create_user(o, session)
 
 
