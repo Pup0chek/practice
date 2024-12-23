@@ -1,5 +1,5 @@
 from starlette.testclient import TestClient
-from practice.main import app
+from practice.src.main import app
 
 client = TestClient(app)
 
